@@ -54,6 +54,10 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.material)
+    implementation(libs.androidx.hilt.common)
+    implementation(libs.firebase.components)
+    implementation(libs.androidx.hilt.work)
+    implementation(libs.androidx.compose.runtime)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -62,26 +66,39 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    //Room
-    val room_version = "2.8.0"
+    // Lifecycle + ViewModel for Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6") // latest stable
 
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1")
-
+    // Room
+    val room_version = "2.6.1" // latest stable (2.8.0 is not a valid release)
     implementation("androidx.room:room-runtime:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
 
-    //hilt
-    implementation("com.google.dagger:hilt-android:2.56.2")
-    ksp("com.google.dagger:hilt-compiler:2.56.2")
+    // Hilt
+    val hilt_version = "2.57" // latest stable
+    implementation("com.google.dagger:hilt-android:$hilt_version")
+    ksp("com.google.dagger:hilt-compiler:$hilt_version")
 
-    implementation("androidx.compose.material:material-icons-extended:<1.6.8>")
+    // Hilt with WorkManager
+    implementation("androidx.hilt:hilt-work:1.2.0")
+    ksp("androidx.hilt:hilt-compiler:1.2.0")
 
-    implementation("com.google.android.material:material:1.9.0")
+    // Navigation
     implementation("androidx.navigation:navigation-compose:2.8.0")
 
-    //app bar
+    // Material Icons (remove <> from version)
+    implementation("androidx.compose.material:material-icons-extended:1.6.8")
+
+    // AppBar & System UI Controller
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
 
-    //font
+    // Fonts
     implementation("androidx.compose.ui:ui-text-google-fonts:1.6.8")
+
+    // Notifications / WorkManager
+    implementation("androidx.work:work-runtime-ktx:2.9.1") // latest stable
+    implementation("com.google.accompanist:accompanist-navigation-animation:0.32.0")
+
+
 }

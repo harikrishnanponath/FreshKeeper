@@ -69,7 +69,7 @@ fun FoodItemCard(item: Grocery, onClick: (Int) -> Unit) {
                     color = Color.Gray
                 )
                 Text(
-                    text = "Qty: ${item.quantity} ${item.unit}",
+                    text = "Qty: ${if (item.quantity % 1.0 == 0.0) item.quantity.toInt() else item.quantity} ${item.unit}",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

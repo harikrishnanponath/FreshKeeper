@@ -2,9 +2,10 @@ package com.example.freshkeeper.model
 
 import com.example.freshkeeper.model.db.Grocery
 import com.example.freshkeeper.model.db.GroceryDao
+import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 
-class GroceryRepository(
+class GroceryRepository @Inject constructor(
     private val dao: GroceryDao
 ) {
 
@@ -27,7 +28,7 @@ class GroceryRepository(
         return dao.getGroceryById(id)
     }
 
-    suspend fun deleteById(id: Int) {
+    suspend fun deleteById(id: Int?) {
         return dao.deleteGroceryById(id)
     }
 }

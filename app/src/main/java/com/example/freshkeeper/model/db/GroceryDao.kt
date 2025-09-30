@@ -33,5 +33,5 @@ interface GroceryDao {
     fun getGroceriesOrderedByExpiryDate(): Flow<List<Grocery>>
 
     @Query("Delete FROM groceries where id = :id")
-    suspend fun deleteGroceryById(id: Int)
+    suspend fun deleteGroceryById(id: Int?)
 }

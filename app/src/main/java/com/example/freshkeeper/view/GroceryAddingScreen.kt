@@ -1,5 +1,6 @@
 package com.example.freshkeeper.view
 
+import android.R
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,19 +27,22 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,16 +51,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.freshkeeper.ui.theme.GreenEmerald
 import com.example.freshkeeper.view.helper.CategoryDropdown
 import com.example.freshkeeper.view.helper.DatePicker
 import com.example.freshkeeper.view.helper.DeleteConfirmationDialog
 import com.example.freshkeeper.view.helper.formatExpiryDate
 import com.example.freshkeeper.viewmodel.GroceryViewModel
-import java.text.SimpleDateFormat
-import java.time.Instant
-import java.time.ZoneId
-import java.util.Date
-import java.util.Locale
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,7 +68,9 @@ fun GroceryAddingScreen(
     viewModel: GroceryViewModel,
     onSaveClicked: (Int?) -> Unit,
     onBackClicked: () -> Unit,
-    groceryId: Int?
+    groceryId: Int?,
+    onDeleteClicked: (Int?) -> Unit,
+    navController: NavController
 ) {
     val groceryName by viewModel.groceryName.collectAsState()
     val groceryCategory by viewModel.groceryCategory.collectAsState()
@@ -76,22 +82,62 @@ fun GroceryAddingScreen(
     var showDatePickerDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
+    var isSaving by remember { mutableStateOf(false) }
+    var isSaved by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    // Handle delay + navigation after save
+    LaunchedEffect(isSaved) {
+        if (isSaved) {
+            scope.launch {
+                snackbarHostState.showSnackbar("Grocery added successfully ✅")
+            }
+            delay(3500) // let user see the snackbar
+            navController.popBackStack()
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { if (groceryId == -1)Text("Add Grocery")  else Text("Edit Grocery")},
+                title = {
+                    Text(
+                        text = if (groceryId == -1) "Add Grocery" else "Edit Grocery"
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClicked) {
-                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back")
+                        Icon(
+                            imageVector = Icons.Default.ArrowBackIosNew,
+                            contentDescription = "Back"
+                        )
                     }
                 }
             )
-
         },
-
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
-            FloatingActionButton(onClick = { onSaveClicked(null) }) {
-                Icon(Icons.Default.Check, contentDescription = "Save")
+            Button(
+                onClick = {
+                    if (viewModel.validateFields()) {
+                        onSaveClicked(groceryId)
+
+                        // show snackbar after save
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                if (groceryId == -1) "Grocery added!" else "Grocery updated!"
+                            )
+                        }
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = GreenEmerald,
+                    contentColor = Color.Black
+                )
+            ) {
+                Icon(imageVector = Icons.Default.Check, contentDescription = "Save")
+                Text(text = if (groceryId == -1) "Save" else "Update")
             }
         }
     ) { innerPadding ->
@@ -108,17 +154,31 @@ fun GroceryAddingScreen(
                 onValueChange = { viewModel.setGroceryName(it) },
                 label = { Text("Name") },
                 leadingIcon = { Icon(Icons.Default.ShoppingCart, null) },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isError = viewModel.nameError.collectAsState().value
             )
-
+            if (viewModel.nameError.collectAsState().value) {
+                Text(
+                    text = "Name cannot be empty",
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
             CategoryDropdown(
                 selectedCategory = groceryCategory,
                 onCategorySelected = { viewModel.setGroceryCategory(it) },
                 categories = listOf("Fruits", "Vegetables", "Dairy", "Bakery", "Meat", "Other"),
                 icon = { Icon(Icons.Default.Category, null) },
-                labelText = { Text("Category") }
+                labelText = { Text("Category") },
             )
 
+            if (viewModel.categoryError.collectAsState().value) {
+                Text(
+                    text = "Please select a category",
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
             // Quantity + Unit Row
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
@@ -136,12 +196,26 @@ fun GroceryAddingScreen(
                     CategoryDropdown(
                         selectedCategory = groceryUnit,
                         onCategorySelected = { viewModel.setGroceryUnit(it) },
-                        categories = listOf("kg", "g", "l", "ml", "pcs", "other"),
+                        categories = listOf("kg", "g", "L", "ml", "pcs", "other"),
                         icon = { Icon(Icons.Default.Scale, null) },
                         labelText = { Text("Unit") }
                     )
                 }
 
+            }
+            if (viewModel.quantityError.collectAsState().value) {
+                Text(
+                    text = "Enter a valid quantity",
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            if (viewModel.unitError.collectAsState().value) {
+                Text(
+                    text = "Please select a unit",
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
 
             // Expiry Date
@@ -166,6 +240,7 @@ fun GroceryAddingScreen(
                 }
             }
 
+
             // Date selector field (only enabled if not "no expiry")
             Box(
                 modifier = Modifier
@@ -188,6 +263,13 @@ fun GroceryAddingScreen(
                     Icon(Icons.Default.DateRange, contentDescription = "Pick Date")
                 }
             }
+            if (viewModel.expiryError.collectAsState().value) {
+                Text(
+                    text = "Please select a expiry date or set 'No Expiry'",
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
             // Show delete button only in edit mode
             if (groceryId != null) {
                 Spacer(modifier = Modifier.height(12.dp))
@@ -203,7 +285,7 @@ fun GroceryAddingScreen(
             DeleteConfirmationDialog(
                 showDialog = showDeleteDialog,
                 onDismiss = { showDeleteDialog = false },
-                onConfirm = { onSaveClicked(groceryId) }
+                onConfirm = { onDeleteClicked(groceryId) }
             )
 
             // Show DatePicker

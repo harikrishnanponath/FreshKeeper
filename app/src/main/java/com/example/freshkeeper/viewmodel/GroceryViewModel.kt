@@ -1,10 +1,17 @@
 package com.example.freshkeeper.viewmodel
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.freshkeeper.model.GroceryRepository
 import com.example.freshkeeper.model.db.Grocery
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,7 +21,8 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class GroceryViewModel @Inject constructor(
-    private val repository: GroceryRepository
+    private val repository: GroceryRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
 
@@ -39,6 +47,60 @@ class GroceryViewModel @Inject constructor(
     private val _noExpiry: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val noExpiry: StateFlow<Boolean> = _noExpiry
 
+
+    private val _nameError : MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val nameError : StateFlow<Boolean> = _nameError
+
+    private val _quantityError : MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val quantityError : StateFlow<Boolean> = _quantityError
+
+    private val _categoryError : MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val categoryError : StateFlow<Boolean> = _categoryError
+
+    private val _unitError : MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val unitError : StateFlow<Boolean> = _unitError
+
+    private val _expiryError : MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val expiryError : StateFlow<Boolean> = _expiryError
+
+    fun validateFields(): Boolean {
+        if (groceryName.value.isBlank()) {
+            _nameError.value = true
+
+        }
+        if (groceryCategory.value.isBlank()) {
+            _categoryError.value = true
+
+        }
+        if (groceryQuantity.value.isBlank()) {
+            _quantityError.value = true
+
+        }
+        if (groceryQuantity.value.toDoubleOrNull() == null) {
+            _quantityError.value = true
+
+        }
+        if (groceryUnit.value.isBlank()) {
+
+            _unitError.value = true
+
+        }
+        if (groceryExpiryDate.value == null && !noExpiry.value) {
+            _expiryError.value = true
+
+        }
+        if (_nameError.value || _quantityError.value || _categoryError.value || _unitError.value || _expiryError.value) {
+            return false
+        }
+        _nameError.value = false
+        _quantityError.value = false
+        _categoryError.value = false
+        _unitError.value = false
+        _expiryError.value = false
+
+        return true
+    }
+
     fun clearAllStates() {
         _groceryName.value = ""
         _groceryExpiryDate.value = null
@@ -47,6 +109,12 @@ class GroceryViewModel @Inject constructor(
         _groceryUnit.value = ""
         _groceryIsConsumed.value = false
         _noExpiry.value = false
+        _nameError.value = false
+        _quantityError.value = false
+        _categoryError.value = false
+        _unitError.value = false
+        _expiryError.value = false
+
     }
 
     fun loadGroceryById(id: Int) {
@@ -66,14 +134,20 @@ class GroceryViewModel @Inject constructor(
 
     fun setGroceryCategory(category: String) {
         _groceryCategory.value = category
+        if (_categoryError.value)
+            _categoryError.value = false
     }
 
     fun setGroceryQuantity(quantity: String) {
         _groceryQuantity.value = quantity
+        if (_quantityError.value)
+            _quantityError.value = false
     }
 
     fun setGroceryUnit(unit: String) {
         _groceryUnit.value = unit
+        if (_unitError.value)
+            _unitError.value = false
     }
 
     fun setGroceryIsConsumed(isConsumed: Boolean) {
@@ -86,16 +160,22 @@ class GroceryViewModel @Inject constructor(
 
     fun setGroceryName(name: String) {
         _groceryName.value = name
+        if (_nameError.value)
+            _nameError.value = false
     }
 
     fun setGroceryExpiryDate(expiryDate: Long?) {
         if (expiryDate != null && !noExpiry.value) {
             _groceryExpiryDate.value = expiryDate
         }
+        if (_expiryError.value)
+            _expiryError.value = false
     }
 
     fun setNoExpiry(noExpiry: Boolean) {
         _noExpiry.value = noExpiry
+        if (_expiryError.value)
+            _expiryError.value = false
     }
 
     // Expose groceries as StateFlow
@@ -142,7 +222,7 @@ class GroceryViewModel @Inject constructor(
         }
     }
 
-    fun deleteGroceryById(id: Int) {
+    fun deleteGroceryById(id: Int?) {
         viewModelScope.launch {
             repository.deleteById(id)
         }
