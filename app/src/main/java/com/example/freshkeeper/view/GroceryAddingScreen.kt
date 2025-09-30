@@ -87,16 +87,6 @@ fun GroceryAddingScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // Handle delay + navigation after save
-    LaunchedEffect(isSaved) {
-        if (isSaved) {
-            scope.launch {
-                snackbarHostState.showSnackbar("Grocery added successfully ✅")
-            }
-            delay(3500) // let user see the snackbar
-            navController.popBackStack()
-        }
-    }
 
     Scaffold(
         topBar = {
