@@ -38,6 +38,7 @@ class FreshKeeper : Application(), Configuration.Provider {
 //        val workRequest = OneTimeWorkRequestBuilder<ExpiryNotificationWorker>().build()
 //        WorkManager.getInstance(this).enqueue(workRequest) // This call will trigger getWorkManagerConfiguration if WM isn't initialized
 
+//        scheduleTestWorker()
         scheduleDailyWorker()
     }
 
@@ -58,9 +59,19 @@ class FreshKeeper : Application(), Configuration.Provider {
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "ExpiryNotificationWork",
-            ExistingPeriodicWorkPolicy.UPDATE,
+            ExistingPeriodicWorkPolicy.KEEP, // don’t cancel & reschedule
             workRequest
         )
+
     }
+
+    private fun scheduleTestWorker() {
+        val testRequest = OneTimeWorkRequestBuilder<ExpiryNotificationWorker>()
+            .setInitialDelay(10, TimeUnit.SECONDS) // runs quickly
+            .build()
+
+        WorkManager.getInstance(this).enqueue(testRequest)
+    }
+
 }
 
