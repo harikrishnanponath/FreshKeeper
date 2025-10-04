@@ -34,11 +34,14 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.freshkeeper.model.GroceryRepository
 import com.example.freshkeeper.model.db.Grocery
 import com.example.freshkeeper.ui.theme.BlueRoyal
 import com.example.freshkeeper.ui.theme.GreenEmerald
 import com.example.freshkeeper.ui.theme.RedCoral
+import com.example.freshkeeper.view.bottomnav.BottomNavBar
 import com.example.freshkeeper.viewmodel.GroceryViewModel
 
 @SuppressLint("FrequentlyChangingValue")
@@ -47,6 +50,7 @@ import com.example.freshkeeper.viewmodel.GroceryViewModel
 fun InventoryScreen(
     viewModel: GroceryViewModel,
     onAddClick: (Int?) -> Unit,
+    navController: NavController
 ) {
     val groceries by viewModel.groceries.collectAsState()
 
@@ -77,6 +81,7 @@ fun InventoryScreen(
 
     Scaffold(
         topBar = { TopAppBar(title = { Text("FreshKeeper") }) },
+        bottomBar = { BottomNavBar(navController = navController) },
         floatingActionButton = {AnimatedVisibility(visible = fabVisible) {
             Button(
                 modifier = Modifier.height(50.dp),

@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Basket body -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M4,9h16l-2,10H6L4,9z" />
+
+    <!-- Basket handles -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M9,9L12,3l3,6z" />
+</vector>

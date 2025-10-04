@@ -10,7 +10,7 @@ import java.time.temporal.ChronoUnit
 class Util {
 
     fun expiryColorValidator(item: Grocery): Color {
-        val daysLeft = expiryDaysLeft(item) ?: return Color.Gray // no expiry
+        val daysLeft = expiryDaysLeft(item) ?: return Color.Green // no expiry
 
         return when {
             daysLeft <= 0 -> Color(0xFFD32F2F) // Expired = Red

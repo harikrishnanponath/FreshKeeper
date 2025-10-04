@@ -69,14 +69,14 @@ class ExpiryNotificationWorker @AssistedInject constructor(
         val channel = NotificationChannel(
             channelId,
             "Grocery Expiry Alerts",
-            NotificationManager.IMPORTANCE_HIGH
+            NotificationManager.IMPORTANCE_DEFAULT
         )
         notificationManager.createNotificationChannel(channel)
 
         val notification = NotificationCompat.Builder(appContext, channelId)
             .setContentTitle(title)
             .setContentText(message)
-            .setSmallIcon(android.R.drawable.ic_dialog_info) // Replace with your app's icon
+            .setSmallIcon(android.R.drawable.ic_menu_upload_you_tube) // Replace with your app's icon
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
 
