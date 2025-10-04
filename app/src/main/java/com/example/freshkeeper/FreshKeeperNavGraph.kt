@@ -4,29 +4,31 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.freshkeeper.view.GroceryAddingScreen
-import com.example.freshkeeper.view.InventoryScreen
-import com.example.freshkeeper.view.RecipeScreen
-import com.example.freshkeeper.viewmodel.GroceryViewModel
+import com.example.freshkeeper.grocery.view.GroceryAddingScreen
+import com.example.freshkeeper.grocery.view.InventoryScreen
+import com.example.freshkeeper.recipe.view.RecipeScreen
+import com.example.freshkeeper.grocery.viewmodel.GroceryViewModel
+import com.example.freshkeeper.recipe.view.RecipeCard
+import com.example.freshkeeper.recipe.view.RecipeDetailScreen
+import com.example.freshkeeper.recipe.viewmodel.RecipeViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun GroceryNavGraph(
-    viewModel: GroceryViewModel = viewModel()
+fun FreshKeeperNavGraph(
+    groceryViewModel: GroceryViewModel = hiltViewModel(),
+    recipeViewModel: RecipeViewModel = hiltViewModel()
 ) {
 
     val navController = rememberNavController()
@@ -65,12 +67,12 @@ fun GroceryNavGraph(
             }
         ) {
             InventoryScreen(
-                viewModel = viewModel,
+                viewModel = groceryViewModel,
                 onAddClick = { groceryId ->
-                    viewModel.clearAllStates()
+                    groceryViewModel.clearAllStates()
                     if (groceryId == null) navController.navigate("addGrocery/-1")
                     else {
-                        viewModel.loadGroceryById(groceryId)
+                        groceryViewModel.loadGroceryById(groceryId)
                         navController.navigate("addGrocery/$groceryId")
                     }
                 },
@@ -94,7 +96,7 @@ fun GroceryNavGraph(
                 animationSpec = tween(350)
             ) + fadeOut(tween(350)) }
         ) {
-            RecipeScreen(navController = navController)
+            RecipeScreen(navController = navController, recipeViewModel = recipeViewModel)
         }
 
         // ---------- Add/Edit Grocery ----------
@@ -128,10 +130,10 @@ fun GroceryNavGraph(
             val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()
             val scope = rememberCoroutineScope()
             GroceryAddingScreen(
-                viewModel = viewModel,
+                viewModel = groceryViewModel,
                 onSaveClicked = { groceryId ->
-                    if (viewModel.validateFields()) {
-                        viewModel.addGrocery(id ?: -1)
+                    if (groceryViewModel.validateFields()) {
+                        groceryViewModel.addGrocery(id ?: -1)
                         scope.launch {
                             delay(300) // allow animation to finish
                             navController.popBackStack()
@@ -140,13 +142,51 @@ fun GroceryNavGraph(
                 },
                 onBackClicked = { navController.popBackStack() },
                 onDeleteClicked = { groceryId ->
-                    viewModel.clearAllStates()
-                    viewModel.deleteGroceryById(groceryId)
+                    groceryViewModel.clearAllStates()
+                    groceryViewModel.deleteGroceryById(groceryId)
                     navController.popBackStack()
                 },
                 groceryId = id,
                 navController = navController
             )
+        }
+
+        //recipe details
+        composable(
+            "recipeDetail/{mealId}",
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { fullHeight -> fullHeight }, // pop up from bottom
+                    animationSpec = tween(450, easing = FastOutSlowInEasing)
+                ) + fadeIn(tween(450))
+            },
+            exitTransition = {
+                slideOutVertically(
+                    targetOffsetY = { fullHeight -> fullHeight }, // slide down to bottom
+                    animationSpec = tween(450, easing = FastOutSlowInEasing)
+                ) + fadeOut(tween(450))
+            },
+            popEnterTransition = {
+                slideInVertically(
+                    initialOffsetY = { fullHeight -> -fullHeight }, // from top on back
+                    animationSpec = tween(450, easing = FastOutSlowInEasing)
+                ) + fadeIn(tween(450))
+            },
+            popExitTransition = {
+                slideOutVertically(
+                    targetOffsetY = { fullHeight -> fullHeight }, // slide down on back
+                    animationSpec = tween(450, easing = FastOutSlowInEasing)
+                ) + fadeOut(tween(450))
+            }
+        ) { backStackEntry ->
+            val mealId = backStackEntry.arguments?.getString("mealId")
+            val recipeViewModel: RecipeViewModel = hiltViewModel()
+
+            // Fetch the meal details by ID
+            val meal = recipeViewModel.getRecipeById(mealId ?: "")
+            meal?.let {
+                RecipeDetailScreen(recipe = it, navController = navController)
+            }
         }
 
     }

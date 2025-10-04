@@ -1,4 +1,4 @@
-package com.example.freshkeeper.view.helper
+package com.example.freshkeeper.grocery.view.helper
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DropdownMenuItem

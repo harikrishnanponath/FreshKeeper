@@ -1,4 +1,4 @@
-package com.example.freshkeeper.model.db
+package com.example.freshkeeper.grocery.model.db
 
 import androidx.room.Dao
 import androidx.room.Delete

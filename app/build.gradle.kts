@@ -58,6 +58,9 @@ dependencies {
     implementation(libs.firebase.components)
     implementation(libs.androidx.hilt.work)
     implementation(libs.androidx.compose.runtime)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.foundation.layout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -79,9 +82,11 @@ dependencies {
     val hilt_version = "2.57" // latest stable
     implementation("com.google.dagger:hilt-android:$hilt_version")
     ksp("com.google.dagger:hilt-compiler:$hilt_version")
+    // Hilt + Compose Navigation integration
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
     // Hilt with WorkManager
-    implementation("androidx.hilt:hilt-work:1.2.0")
+    //implementation("androidx.hilt:hilt-work:1.2.0")
     ksp("androidx.hilt:hilt-compiler:1.2.0")
 
     // Navigation
@@ -99,6 +104,17 @@ dependencies {
     // Notifications / WorkManager
     implementation("androidx.work:work-runtime-ktx:2.9.1") // latest stable
     implementation("com.google.accompanist:accompanist-navigation-animation:0.32.0")
+
+    //Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    //coil
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
 
 
 }

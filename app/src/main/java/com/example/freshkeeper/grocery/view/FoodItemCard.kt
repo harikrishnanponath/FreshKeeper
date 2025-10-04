@@ -1,4 +1,4 @@
-package com.example.freshkeeper.view
+package com.example.freshkeeper.grocery.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,8 +24,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.freshkeeper.model.db.Grocery
-import com.example.freshkeeper.util.Util
+import com.example.freshkeeper.grocery.model.db.Grocery
+import com.example.freshkeeper.grocery.util.Util
 
 @Composable
 fun FoodItemCard(item: Grocery, onClick: (Int) -> Unit) {

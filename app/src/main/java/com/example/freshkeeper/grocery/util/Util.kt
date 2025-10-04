@@ -1,7 +1,7 @@
-package com.example.freshkeeper.util
+package com.example.freshkeeper.grocery.util
 
 import androidx.compose.ui.graphics.Color
-import com.example.freshkeeper.model.db.Grocery
+import com.example.freshkeeper.grocery.model.db.Grocery
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset

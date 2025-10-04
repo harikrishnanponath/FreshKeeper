@@ -1,7 +1,7 @@
-package com.example.freshkeeper.model
+package com.example.freshkeeper.grocery.model
 
-import com.example.freshkeeper.model.db.Grocery
-import com.example.freshkeeper.model.db.GroceryDao
+import com.example.freshkeeper.grocery.model.db.Grocery
+import com.example.freshkeeper.grocery.model.db.GroceryDao
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 

@@ -1,15 +1,10 @@
-package com.example.freshkeeper.viewmodel
+package com.example.freshkeeper.grocery.viewmodel
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.freshkeeper.model.GroceryRepository
-import com.example.freshkeeper.model.db.Grocery
+import com.example.freshkeeper.grocery.model.GroceryRepository
+import com.example.freshkeeper.grocery.model.db.Grocery
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject

@@ -1,4 +1,4 @@
-package com.example.freshkeeper.view.helper
+package com.example.freshkeeper.grocery.view.helper
 
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.material3.AlertDialog

@@ -1,4 +1,4 @@
-package com.example.freshkeeper.model.db
+package com.example.freshkeeper.grocery.model.db
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

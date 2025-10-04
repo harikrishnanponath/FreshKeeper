@@ -1,4 +1,4 @@
-package com.example.freshkeeper.view.bottomnav
+package com.example.freshkeeper.grocery.view.bottomnav
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
