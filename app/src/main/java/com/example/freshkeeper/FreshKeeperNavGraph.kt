@@ -8,8 +8,11 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -35,7 +38,8 @@ fun FreshKeeperNavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = "inventory"
+        startDestination = "inventory",
+        //modifier = Modifier.background(MaterialTheme.colorScheme.background)
     ) {
 
         // ---------- Inventory ----------

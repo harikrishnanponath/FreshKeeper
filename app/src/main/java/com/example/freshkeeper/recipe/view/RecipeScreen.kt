@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -53,6 +54,9 @@ fun RecipeScreen(
     val isLoading by recipeViewModel.isLoading.collectAsState()
     val errorMessage by recipeViewModel.errorMessage.collectAsState()
 
+    val colorScheme = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
     LaunchedEffect(searchKey) {
         if (searchKey.isNotEmpty()) {
             recipeViewModel.searchRecipe(searchKey)
@@ -60,20 +64,30 @@ fun RecipeScreen(
     }
 
     Scaffold(
-        containerColor = Color.Black,
         topBar = {
-            TopAppBar(title = { Text("Recipes", style = MaterialTheme.typography.titleLarge) })
+            TopAppBar(
+                title = {
+                    Text(
+                        "Recipe",
+                        style = typography.titleLarge.copy(color = colorScheme.onPrimary)
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = colorScheme.primary,
+                    titleContentColor = colorScheme.onPrimary,
+                    navigationIconContentColor = colorScheme.onPrimary,
+                    actionIconContentColor = colorScheme.onPrimary
+                )
+            )
         },
-        bottomBar = {
-            BottomNavBar(navController = navController)
-        }
+        bottomBar = { BottomNavBar(navController = navController) }
     ) { innerPadding ->
 
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .background(Color.Black)
+                .background(colorScheme.background)
                 .padding(16.dp)
         ) {
 
@@ -81,24 +95,23 @@ fun RecipeScreen(
             OutlinedTextField(
                 value = searchKey,
                 onValueChange = { recipeViewModel.setSearchKey(it) },
-                label = { Text("Recipe", color = Color.Gray) },
-                trailingIcon = { IconButton(
-                    onClick = { recipeViewModel.searchRecipe(searchKey) },
-                    content = {
+                label = { Text("Search recipes", color = colorScheme.onSurfaceVariant) },
+                trailingIcon = {
+                    IconButton(onClick = { recipeViewModel.searchRecipe(searchKey) }) {
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = "Search",
-                            tint = Color.White
+                            tint = colorScheme.onSurfaceVariant
                         )
                     }
-                )},
+                },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.White,
-                    unfocusedBorderColor = Color.Gray,
-                    cursorColor = Color.White,
-                    focusedLabelColor = Color.White
+                    focusedBorderColor = colorScheme.primary,
+                    unfocusedBorderColor = colorScheme.outline,
+                    cursorColor = colorScheme.primary,
+                    focusedLabelColor = colorScheme.primary
                 )
             )
 
@@ -111,7 +124,7 @@ fun RecipeScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(color = Color.White)
+                        CircularProgressIndicator(color = colorScheme.primary)
                     }
                 }
 
@@ -123,21 +136,23 @@ fun RecipeScreen(
                     ) {
                         Text(
                             text = errorMessage ?: "",
-                            color = Color.Red,
-                            textAlign = TextAlign.Center
+                            color = colorScheme.error,
+                            textAlign = TextAlign.Center,
+                            style = typography.bodyMedium
                         )
                     }
                 }
 
                 recipes?.meals.isNullOrEmpty() -> {
-                    //  Empty State
+                    // 🕳️ Empty State
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = "No recipes found",
-                            color = Color.Gray
+                            color = colorScheme.onSurfaceVariant,
+                            style = typography.bodyMedium
                         )
                     }
                 }
@@ -152,7 +167,6 @@ fun RecipeScreen(
                                 meal,
                                 onClick = { navController.navigate("recipeDetail/${meal.idMeal}") }
                             )
-
                         }
                     }
                 }

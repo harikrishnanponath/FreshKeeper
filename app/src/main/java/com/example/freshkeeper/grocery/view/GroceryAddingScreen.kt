@@ -36,6 +36,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -102,7 +103,13 @@ fun GroceryAddingScreen(
                             contentDescription = "Back"
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary, // 👈 Background color
+                    titleContentColor = Color.White,                    // 👈 Title color
+                    navigationIconContentColor = Color.White,            // 👈 Back/menu icon color
+                    actionIconContentColor = Color.White                 // 👈 Action icons color
+                ),
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -121,9 +128,10 @@ fun GroceryAddingScreen(
                     }
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = GreenEmerald,
-                    contentColor = Color.Black
-                )
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = Color.White
+                ),
+                modifier = Modifier.height(50.dp)
             ) {
                 Icon(imageVector = Icons.Default.Check, contentDescription = "Save")
                 Text(text = if (groceryId == -1) "Save" else "Update")
@@ -265,7 +273,7 @@ fun GroceryAddingScreen(
                 Button(
                     onClick = { showDeleteDialog = true },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().height(50.dp)
                 ) {
                     Text("Delete Grocery", color = Color.White)
                 }

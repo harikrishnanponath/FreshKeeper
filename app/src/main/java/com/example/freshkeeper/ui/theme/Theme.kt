@@ -21,64 +21,64 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 //    tertiary = Pink80
 //)
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFFBB86FC),
-    onPrimary = Color.Black,
-
-    secondary = Color(0xFF03DAC6),  // Teal for secondary highlights
+// 🌞 Light Theme
+private val FreshKeeperLightColorScheme = lightColorScheme(
+    primary = Color(0xFF388E3C),
+    onPrimary = Color.White,
+    secondary = Color(0xFFFFB300),
     onSecondary = Color.Black,
-
-    background = Color.Black,       // Always black background
-    onBackground = Color.White,
-
-    surface = Color(0xFF121212),    // Dark gray for cards/surfaces
-    onSurface = Color.White,
-
-    error = Color(0xFFCF6679),
-    onError = Color.Black
+    tertiary = Color(0xFF81C784),
+    onTertiary = Color.White,
+    background = Color(0xFFF9FBF9),
+    onBackground = Color(0xFF1B1B1B),
+    surface = Color(0xFFFFFFFF),
+    onSurface = Color(0xFF1E1E1E),
+    error = Color(0xFFD32F2F),
+    onError = Color.White
 )
 
-
-private val FreshKeeperLightColorScheme = lightColorScheme(
-    primary = Color(0xFF00897B),   // Deep teal accent
-    onPrimary = Color.White,
-    secondary = Color(0xFF26C6DA), // Bright cyan
-    onSecondary = Color.White,
-    tertiary = Color(0xFF4DB6AC),  // Muted teal
+// 🌙 Dark Theme
+private val FreshKeeperDarkColorScheme = darkColorScheme(
+    primary = Color(0xFF388E3C),
+    onPrimary = Color.Black,
+    secondary = Color(0xFFFFCA28),
+    onSecondary = Color.Black,
+    tertiary = Color(0xFF388E3C),
     onTertiary = Color.White,
-    background = Color(0xFFFDFDFD),
-    onBackground = Color(0xFF121212),
-    surface = Color(0xFFFFFFFF),   // Card background
-    onSurface = Color(0xFF121212),
+    background = Color(0xFF101312),
+    onBackground = Color(0xFFE8F5E9),
+    surface = Color(0xFF1B1F1D),
+    onSurface = Color(0xFFE8F5E9),
+    error = Color(0xFFEF5350),
+    onError = Color.Black
 )
 
 @Composable
 fun FreshKeeperTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-
     val systemUiController = rememberSystemUiController()
-    val useDarkIcons = false // false = white icons, true = dark icons
-
-    SideEffect {
-        systemUiController.setStatusBarColor(Color.Black, darkIcons = false)
-
-    }
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
-        darkTheme -> DarkColorScheme
+        darkTheme -> FreshKeeperDarkColorScheme
         else -> FreshKeeperLightColorScheme
     }
 
+    // Update system bars (status/navigation)
+    SideEffect {
+        systemUiController.setSystemBarsColor(
+            color = colorScheme.primary,
+            darkIcons = !darkTheme
+        )
+    }
+
     MaterialTheme(
-        colorScheme = DarkColorScheme,
+        colorScheme = colorScheme,
         typography = Typography,
         content = content
     )

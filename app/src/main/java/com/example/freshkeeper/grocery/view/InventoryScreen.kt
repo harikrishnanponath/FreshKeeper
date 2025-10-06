@@ -9,9 +9,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -63,13 +65,19 @@ fun InventoryScreen(
 
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("FreshKeeper") }) },
+        topBar = { TopAppBar(title = { Text("FreshKeeper") },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primary, // 👈 Background color
+                titleContentColor = Color.White,                    // 👈 Title color
+                navigationIconContentColor = Color.White,            // 👈 Back/menu icon color
+                actionIconContentColor = Color.White                 // 👈 Action icons color
+            ),) },
         bottomBar = { BottomNavBar(navController = navController) },
-        floatingActionButton = {AnimatedVisibility(visible = fabVisible) {
+        floatingActionButton = { AnimatedVisibility(visible = fabVisible) {
             Button(
                 modifier = Modifier.height(50.dp),
                 onClick = { onAddClick(null) },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = Color.White)
             ) {
                 Text("Add Grocery")
             }
