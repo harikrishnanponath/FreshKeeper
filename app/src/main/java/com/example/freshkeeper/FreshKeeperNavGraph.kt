@@ -1,5 +1,6 @@
 package com.example.freshkeeper
 
+import android.util.Log
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -8,13 +9,12 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.background
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -22,7 +22,6 @@ import com.example.freshkeeper.grocery.view.GroceryAddingScreen
 import com.example.freshkeeper.grocery.view.InventoryScreen
 import com.example.freshkeeper.recipe.view.RecipeScreen
 import com.example.freshkeeper.grocery.viewmodel.GroceryViewModel
-import com.example.freshkeeper.recipe.view.RecipeCard
 import com.example.freshkeeper.recipe.view.RecipeDetailScreen
 import com.example.freshkeeper.recipe.viewmodel.RecipeViewModel
 import kotlinx.coroutines.delay
@@ -45,18 +44,18 @@ fun FreshKeeperNavGraph(
         // ---------- Inventory ----------
         composable(
             "inventory",
-            enterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { fullWidth -> fullWidth }, // from right
-                    animationSpec = tween(350, easing = FastOutSlowInEasing)
-                ) + fadeIn(animationSpec = tween(350))
-            },
-            exitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { fullWidth -> -fullWidth }, // to left
-                    animationSpec = tween(350, easing = FastOutSlowInEasing)
-                ) + fadeOut(animationSpec = tween(350))
-            },
+//            enterTransition = {
+//                slideInHorizontally(
+//                    initialOffsetX = { fullWidth -> fullWidth }, // from right
+//                    animationSpec = tween(350, easing = FastOutSlowInEasing)
+//                ) + fadeIn(animationSpec = tween(350))
+//            },
+//            exitTransition = {
+//                slideOutHorizontally(
+//                    targetOffsetX = { fullWidth -> -fullWidth }, // to left
+//                    animationSpec = tween(350, easing = FastOutSlowInEasing)
+//                ) + fadeOut(animationSpec = tween(350))
+//            },
             popEnterTransition = {
                 slideInHorizontally(
                     initialOffsetX = { fullWidth -> -fullWidth }, // from left on back
@@ -158,18 +157,6 @@ fun FreshKeeperNavGraph(
         //recipe details
         composable(
             "recipeDetail/{mealId}",
-            enterTransition = {
-                slideInVertically(
-                    initialOffsetY = { fullHeight -> fullHeight }, // pop up from bottom
-                    animationSpec = tween(450, easing = FastOutSlowInEasing)
-                ) + fadeIn(tween(450))
-            },
-            exitTransition = {
-                slideOutVertically(
-                    targetOffsetY = { fullHeight -> fullHeight }, // slide down to bottom
-                    animationSpec = tween(450, easing = FastOutSlowInEasing)
-                ) + fadeOut(tween(450))
-            },
             popEnterTransition = {
                 slideInVertically(
                     initialOffsetY = { fullHeight -> -fullHeight }, // from top on back
@@ -183,14 +170,20 @@ fun FreshKeeperNavGraph(
                 ) + fadeOut(tween(450))
             }
         ) { backStackEntry ->
+
             val mealId = backStackEntry.arguments?.getString("mealId")
             val recipeViewModel: RecipeViewModel = hiltViewModel()
+            val meal by recipeViewModel.selectedMeal.collectAsState()
 
-            // Fetch the meal details by ID
-            val meal = recipeViewModel.getRecipeById(mealId ?: "")
-            meal?.let {
-                RecipeDetailScreen(recipe = it, navController = navController)
+
+            Log.i("mealHari", meal.toString())
+            Log.i("mealHari", meal.toString())
+            // Trigger loading when composable is first displayed
+            LaunchedEffect(mealId) {
+                recipeViewModel.getRecipeById(mealId)
             }
+
+            RecipeDetailScreen(recipe = meal, navController = navController)
         }
 
     }

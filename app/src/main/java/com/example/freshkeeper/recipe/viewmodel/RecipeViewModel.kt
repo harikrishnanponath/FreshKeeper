@@ -29,8 +29,10 @@ class RecipeViewModel @Inject constructor(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
+    private val _selectedMeal = MutableStateFlow<Meal?>(null)
+    val selectedMeal: StateFlow<Meal?> = _selectedMeal
+
     init {
-        // Optional: load a default recipe on startup
         searchRecipe("chicken")
     }
 
@@ -60,7 +62,11 @@ class RecipeViewModel @Inject constructor(
         }
     }
 
-    fun getRecipeById(mealId: String): Meal? {
-        return _recipes.value?.meals?.find { it.idMeal == mealId }
+    fun getRecipeById(mealId: String?): Meal? {
+
+        viewModelScope.launch {
+            _selectedMeal.value = recipeRepository.getRecipeById(mealId)
+        }
+        return selectedMeal.value
     }
 }

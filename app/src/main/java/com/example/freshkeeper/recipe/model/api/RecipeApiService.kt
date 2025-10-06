@@ -1,5 +1,6 @@
 package com.example.freshkeeper.recipe.model.api
 
+import com.example.freshkeeper.recipe.model.data.Meal
 import com.example.freshkeeper.recipe.model.data.RecipeResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -21,6 +22,6 @@ interface RecipeApiService {
 
     @GET("lookup.php")
     suspend fun getRecipeById(
-        @Query("i") id: String
+        @Query("i") id: String?
     ): RecipeResponse?
 }
