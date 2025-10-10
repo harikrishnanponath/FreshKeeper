@@ -57,117 +57,113 @@ fun RecipeScreen(
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
 
+    // Trigger API call when search key changes
     LaunchedEffect(searchKey) {
         if (searchKey.isNotEmpty()) {
             recipeViewModel.searchRecipe(searchKey)
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        "Recipe",
-                        style = typography.titleLarge.copy(color = colorScheme.onPrimary)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colorScheme.background)
+    ) {
+        TopAppBar(
+            title = {
+                Text(
+                    "Recipe",
+                    style = typography.titleLarge.copy(color = colorScheme.onPrimary)
+                )
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = colorScheme.primary,
+                titleContentColor = colorScheme.onPrimary,
+                navigationIconContentColor = colorScheme.onPrimary,
+                actionIconContentColor = colorScheme.onPrimary
+            )
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 🔍 Search Bar
+        OutlinedTextField(
+            value = searchKey,
+            onValueChange = { recipeViewModel.setSearchKey(it) },
+            label = { Text("Search recipes", color = colorScheme.onSurfaceVariant) },
+            trailingIcon = {
+                IconButton(onClick = { recipeViewModel.searchRecipe(searchKey) }) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search",
+                        tint = colorScheme.onSurfaceVariant
                     )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorScheme.primary,
-                    titleContentColor = colorScheme.onPrimary,
-                    navigationIconContentColor = colorScheme.onPrimary,
-                    actionIconContentColor = colorScheme.onPrimary
-                )
-            )
-        },
-        bottomBar = { BottomNavBar(navController = navController) }
-    ) { innerPadding ->
-
-        Column(
+                }
+            },
             modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .background(colorScheme.background)
-                .padding(16.dp)
-        ) {
-
-            // 🔍 Search Bar
-            OutlinedTextField(
-                value = searchKey,
-                onValueChange = { recipeViewModel.setSearchKey(it) },
-                label = { Text("Search recipes", color = colorScheme.onSurfaceVariant) },
-                trailingIcon = {
-                    IconButton(onClick = { recipeViewModel.searchRecipe(searchKey) }) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Search",
-                            tint = colorScheme.onSurfaceVariant
-                        )
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = colorScheme.primary,
-                    unfocusedBorderColor = colorScheme.outline,
-                    cursorColor = colorScheme.primary,
-                    focusedLabelColor = colorScheme.primary
-                )
+                .fillMaxWidth()
+                .padding(top = 8.dp, bottom = 16.dp, start = 16.dp, end = 16.dp),
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = colorScheme.primary,
+                unfocusedBorderColor = colorScheme.outline,
+                cursorColor = colorScheme.primary,
+                focusedLabelColor = colorScheme.primary
             )
+        )
 
-            Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-            when {
-                isLoading -> {
-                    // 🔄 Loading Spinner
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = colorScheme.primary)
-                    }
+        // 🔄 Content Area
+        when {
+            isLoading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = colorScheme.primary)
                 }
+            }
 
-                errorMessage != null -> {
-                    // ⚠️ Error Message
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = errorMessage ?: "",
-                            color = colorScheme.error,
-                            textAlign = TextAlign.Center,
-                            style = typography.bodyMedium
+            errorMessage != null -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = errorMessage ?: "",
+                        color = colorScheme.error,
+                        textAlign = TextAlign.Center,
+                        style = typography.bodyMedium
+                    )
+                }
+            }
+
+            recipes?.meals.isNullOrEmpty() -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No recipes found",
+                        color = colorScheme.onSurfaceVariant,
+                        style = typography.bodyMedium
+                    )
+                }
+            }
+
+            else -> {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(recipes?.meals ?: emptyList()) { meal ->
+                        RecipeCard(
+                            meal = meal,
+                            onClick = {
+                                navController.navigate("recipeDetail/${meal.idMeal}")
+                            }
                         )
-                    }
-                }
-
-                recipes?.meals.isNullOrEmpty() -> {
-                    // 🕳️ Empty State
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "No recipes found",
-                            color = colorScheme.onSurfaceVariant,
-                            style = typography.bodyMedium
-                        )
-                    }
-                }
-
-                else -> {
-                    // 🍽️ Recipe List
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        items(recipes?.meals ?: emptyList()) { meal ->
-                            RecipeCard(
-                                meal,
-                                onClick = { navController.navigate("recipeDetail/${meal.idMeal}") }
-                            )
-                        }
                     }
                 }
             }

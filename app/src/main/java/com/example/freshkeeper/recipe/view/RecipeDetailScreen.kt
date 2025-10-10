@@ -45,166 +45,84 @@ fun RecipeDetailScreen(
     recipe: Meal?,
     navController: NavController
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(recipe?.strMeal ?: "Recipe Details") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
-                )
-            )
-        }
-    ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(padding)
-        ) {
-            if (recipe == null) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center),
-                    color = MaterialTheme.colorScheme.primary
-                )
-            } else {
-                Column(
-                    modifier = Modifier
-                        .verticalScroll(rememberScrollState())
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background)
-                ) {
-                    // 🖼 Recipe Image
-                    AsyncImage(
-                        model = recipe.strMealThumb,
-                        contentDescription = recipe.strMeal,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(250.dp)
-                            .clip(
-                                RoundedCornerShape(
-                                    bottomStart = 24.dp,
-                                    bottomEnd = 24.dp
-                                )
-                            ),
-                        contentScale = ContentScale.Crop
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        TopAppBar(
+            title = { Text(recipe?.strMeal ?: "Recipe Details") },
+            navigationIcon = {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back"
                     )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // 🏷 Category & Area
-                    Row(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        recipe.strCategory?.let {
-                            AssistChip(
-                                onClick = {},
-                                label = { Text(it) },
-                                colors = AssistChipDefaults.assistChipColors(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                    labelColor = MaterialTheme.colorScheme.onSecondaryContainer
-                                )
-                            )
-                        }
-                        recipe.strArea?.let {
-                            AssistChip(
-                                onClick = {},
-                                label = { Text(it) },
-                                colors = AssistChipDefaults.assistChipColors(
-                                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                    labelColor = MaterialTheme.colorScheme.onTertiaryContainer
-                                )
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    // 🧂 Ingredients
-                    Text(
-                        text = "Ingredients",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            color = MaterialTheme.colorScheme.primary
-                        ),
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    val ingredients = listOf(
-                        recipe.strIngredient1 to recipe.strMeasure1,
-                        recipe.strIngredient2 to recipe.strMeasure2,
-                        recipe.strIngredient3 to recipe.strMeasure3,
-                        recipe.strIngredient4 to recipe.strMeasure4,
-                        recipe.strIngredient5 to recipe.strMeasure5,
-                        recipe.strIngredient6 to recipe.strMeasure6,
-                        recipe.strIngredient7 to recipe.strMeasure7,
-                        recipe.strIngredient8 to recipe.strMeasure8,
-                        recipe.strIngredient9 to recipe.strMeasure9,
-                        recipe.strIngredient10 to recipe.strMeasure10
-                    ).filter { !it.first.isNullOrEmpty() }
-
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        ),
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        elevation = CardDefaults.cardElevation(4.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            ingredients.forEach { (ingredient, measure) ->
-                                Text(
-                                    text = "• $ingredient - $measure",
-                                    style = MaterialTheme.typography.bodyMedium.copy(
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                )
-                            }
-                        }
-                    }
-
-                    // 📖 Instructions
-                    Text(
-                        text = "Instructions",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            color = MaterialTheme.colorScheme.primary
-                        ),
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    recipe.strInstructions?.let {
-                        Text(
-                            text = it,
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                color = MaterialTheme.colorScheme.onBackground
-                            ),
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(40.dp))
                 }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                titleContentColor = Color.White,
+                navigationIconContentColor = Color.White
+            )
+        )
+
+        if (recipe == null) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
+            ) {
+                // 🖼 Recipe Image
+                AsyncImage(
+                    model = recipe.strMealThumb,
+                    contentDescription = recipe.strMeal,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(250.dp)
+                        .clip(RoundedCornerShape(16.dp)),
+                    contentScale = ContentScale.Crop
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Category + Area
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    recipe.strCategory?.let {
+                        AssistChip(onClick = {}, label = { Text(it) })
+                    }
+                    recipe.strArea?.let {
+                        AssistChip(onClick = {}, label = { Text(it) })
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text("Ingredients", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                val ingredients = listOf(
+                    recipe.strIngredient1 to recipe.strMeasure1,
+                    recipe.strIngredient2 to recipe.strMeasure2,
+                    recipe.strIngredient3 to recipe.strMeasure3,
+                    recipe.strIngredient4 to recipe.strMeasure4,
+                    recipe.strIngredient5 to recipe.strMeasure5,
+                ).filter { !it.first.isNullOrEmpty() }
+
+                ingredients.forEach { (ingredient, measure) ->
+                    Text("• $ingredient - $measure")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text("Instructions", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(recipe.strInstructions ?: "")
             }
         }
     }
 }
-

@@ -15,6 +15,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -29,46 +30,16 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun FreshKeeperNavGraph(
+    navController: NavHostController,
     groceryViewModel: GroceryViewModel = hiltViewModel(),
-    recipeViewModel: RecipeViewModel = hiltViewModel()
+    recipeViewModel: RecipeViewModel = hiltViewModel(),
 ) {
-
-    val navController = rememberNavController()
-
     NavHost(
         navController = navController,
         startDestination = "inventory",
-        //modifier = Modifier.background(MaterialTheme.colorScheme.background)
     ) {
-
-        // ---------- Inventory ----------
-        composable(
-            "inventory",
-//            enterTransition = {
-//                slideInHorizontally(
-//                    initialOffsetX = { fullWidth -> fullWidth }, // from right
-//                    animationSpec = tween(350, easing = FastOutSlowInEasing)
-//                ) + fadeIn(animationSpec = tween(350))
-//            },
-//            exitTransition = {
-//                slideOutHorizontally(
-//                    targetOffsetX = { fullWidth -> -fullWidth }, // to left
-//                    animationSpec = tween(350, easing = FastOutSlowInEasing)
-//                ) + fadeOut(animationSpec = tween(350))
-//            },
-            popEnterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { fullWidth -> -fullWidth }, // from left on back
-                    animationSpec = tween(350, easing = FastOutSlowInEasing)
-                ) + fadeIn(animationSpec = tween(350))
-            },
-            popExitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { fullWidth -> fullWidth }, // to right on back
-                    animationSpec = tween(350, easing = FastOutSlowInEasing)
-                ) + fadeOut(animationSpec = tween(350))
-            }
-        ) {
+        // Inventory
+        composable("inventory") {
             InventoryScreen(
                 viewModel = groceryViewModel,
                 onAddClick = { groceryId ->
@@ -83,62 +54,23 @@ fun FreshKeeperNavGraph(
             )
         }
 
-        // ---------- Recipe ----------
-        composable(
-            "recipe",
-            enterTransition = { slideInHorizontally(initialOffsetX = { fullWidth -> fullWidth },
-                animationSpec = tween(350)
-            ) + fadeIn(tween(350)) },
-            exitTransition = { slideOutHorizontally(targetOffsetX = { fullWidth -> -fullWidth },
-                animationSpec = tween(350)
-            ) + fadeOut(tween(350)) },
-            popEnterTransition = { slideInHorizontally(initialOffsetX = { fullWidth -> -fullWidth },
-                animationSpec = tween(350)
-            ) + fadeIn(tween(350)) },
-            popExitTransition = { slideOutHorizontally(targetOffsetX = { fullWidth -> fullWidth },
-                animationSpec = tween(350)
-            ) + fadeOut(tween(350)) }
-        ) {
+        // Recipe
+        composable("recipe") {
             RecipeScreen(navController = navController, recipeViewModel = recipeViewModel)
         }
 
-        // ---------- Add/Edit Grocery ----------
-        composable(
-            "addGrocery/{id}",
-            enterTransition = {
-                slideInVertically(
-                    initialOffsetY = { fullHeight -> fullHeight }, // pop up from bottom
-                    animationSpec = tween(450, easing = FastOutSlowInEasing)
-                ) + fadeIn(tween(450))
-            },
-            exitTransition = {
-                slideOutVertically(
-                    targetOffsetY = { fullHeight -> fullHeight }, // slide down to bottom
-                    animationSpec = tween(450, easing = FastOutSlowInEasing)
-                ) + fadeOut(tween(450))
-            },
-            popEnterTransition = {
-                slideInVertically(
-                    initialOffsetY = { fullHeight -> -fullHeight }, // from top on back
-                    animationSpec = tween(450, easing = FastOutSlowInEasing)
-                ) + fadeIn(tween(450))
-            },
-            popExitTransition = {
-                slideOutVertically(
-                    targetOffsetY = { fullHeight -> fullHeight }, // slide down on back
-                    animationSpec = tween(450, easing = FastOutSlowInEasing)
-                ) + fadeOut(tween(450))
-            }
-        ) { backStackEntry ->
+        // Add/Edit Grocery
+        composable("addGrocery/{id}") { backStackEntry ->
             val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()
             val scope = rememberCoroutineScope()
+
             GroceryAddingScreen(
                 viewModel = groceryViewModel,
-                onSaveClicked = { groceryId ->
+                onSaveClicked = {
                     if (groceryViewModel.validateFields()) {
                         groceryViewModel.addGrocery(id ?: -1)
                         scope.launch {
-                            delay(300) // allow animation to finish
+                            delay(300)
                             navController.popBackStack()
                         }
                     }
@@ -154,37 +86,17 @@ fun FreshKeeperNavGraph(
             )
         }
 
-        //recipe details
-        composable(
-            "recipeDetail/{mealId}",
-            popEnterTransition = {
-                slideInVertically(
-                    initialOffsetY = { fullHeight -> -fullHeight }, // from top on back
-                    animationSpec = tween(450, easing = FastOutSlowInEasing)
-                ) + fadeIn(tween(450))
-            },
-            popExitTransition = {
-                slideOutVertically(
-                    targetOffsetY = { fullHeight -> fullHeight }, // slide down on back
-                    animationSpec = tween(450, easing = FastOutSlowInEasing)
-                ) + fadeOut(tween(450))
-            }
-        ) { backStackEntry ->
-
+        // Recipe Details
+        composable("recipeDetail/{mealId}") { backStackEntry ->
             val mealId = backStackEntry.arguments?.getString("mealId")
             val recipeViewModel: RecipeViewModel = hiltViewModel()
             val meal by recipeViewModel.selectedMeal.collectAsState()
 
-
-            Log.i("mealHari", meal.toString())
-            Log.i("mealHari", meal.toString())
-            // Trigger loading when composable is first displayed
             LaunchedEffect(mealId) {
                 recipeViewModel.getRecipeById(mealId)
             }
 
             RecipeDetailScreen(recipe = meal, navController = navController)
         }
-
     }
 }
